@@ -165,6 +165,15 @@
     background-size: cover;
     margin: 0 8px;
   }
+  .song.active{
+    background-color: var(--primary-color);
+
+  }
+  .song.active .option,
+  .song.active .author,
+  .song.active .title{
+    color: #fff;
+  }
   
   .song .body {
     flex: 1;

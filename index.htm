@@ -77,6 +77,7 @@
         const $$ = document.querySelectorAll.bind(document);
 
         const player = $('.player')
+        const playlist = $('.playlist')
         const cd = $('.cd')
         const heading = $('header h2')
         const cdThumb = $('.cd-thumb')
@@ -85,10 +86,13 @@
         const progress = $('#progress')
         const nextBtn = $('.btn-next')
         const prevBtn = $('.btn-prev')
-
+        const randomBtn = $('.btn-random')
+        const repeatBtn = $('.btn-repeat')
         const app ={
           currentIndex :0,
           isPlaying: false,
+          isRandom:false,
+          isRepeat:false,
             songs :[
               {
                 name: 'Nevada',
@@ -165,9 +169,9 @@
             ],
         
         render: function(){
-          const htmls = this.songs.map(song =>{
+          const htmls = this.songs.map((song,index) =>{
             return ` 
-              <div class="song">
+              <div class="song ${index === this.currentIndex ? 'active' : ''}">
                 <div class="thumb" style="background-image: url('${song.image}')">
                 </div>
                 <div class="body">
@@ -181,7 +185,7 @@
               `
 
           })
-          $('.playlist').innerHTML = htmls.join('');
+          playlist.innerHTML = htmls.join('');
 
 
         },
@@ -231,6 +235,7 @@
               audio.play();
            
             }
+           
   
           }
 
@@ -268,14 +273,66 @@
 
           //When click next song
           nextBtn.onclick = function(){
-            _this.nextSong();
+            if(_this.isRandom){
+              _this.playRandomSong();
+            }else{
+              _this.nextSong();
+            }
+            
             audio.play();
+            _this.render();
+            _this.scrollToActiceSong()
           }
+          //When click previous song
           prevBtn.onclick = function(){
-            _this.prevSong();
+
+
+            if(_this.isRandom){
+              _this.playRandomSong();
+            }else{
+              _this.prevSong();
+            }
+            
+           
             audio.play();
+            _this.render();
+            _this.scrollToActiceSong();
+          }
+          //When click random button
+          randomBtn.onclick = function(){
+            _this.isRandom = !_this.isRandom
+            
+            randomBtn.classList.toggle('active',_this.isRandom);
+            
 
           }
+          //handle next song when audio ended
+          audio.onended = function (){
+            if(_this.isRepeat){
+              audio.play()
+            }else{
+              nextBtn.click();
+            }
+          }
+
+          repeatBtn.onclick = function(e){
+            _this.isRepeat =! _this.isRepeat
+            repeatBtn.classList.toggle('active',_this.isRepeat);
+          }
+          
+
+          //
+          playlist.onclick = function(e){
+            if(
+              e.target.closest('.song:not(.active)') &&
+              !e.target.closest('.option')
+
+            ){
+
+              console.log
+            }
+          }
+
 
         },
         loadCurrentSong: function(){
@@ -287,6 +344,15 @@
           
 
         },
+        scrollToActiceSong: function(){
+          setTimeout(() =>{
+            $('.song.active').scrollIntoView({
+              behavior:'smooth',
+              block:'nearest',
+            })
+          },300)
+        }
+        ,
         
         nextSong: function(){
           this.currentIndex++;
@@ -304,6 +370,20 @@
           this.currentIndex =this.songs.length - 1;
 
           
+          this.loadCurrentSong();
+        },
+        playRandomSong: function(){
+          let newIndex
+          do{
+
+            newIndex = Math.floor(Math.random() *this.songs.length);
+            console.log(newIndex);
+            console.log(this.currentIndex);
+          }while(newIndex === this.currentIndex)
+          console.log(newIndex);
+          console.log(this.currentIndex);
+          this.currentIndex = newIndex;
+          console.log(this.currentIndex);
           this.loadCurrentSong();
         },
         // preSong: function(){
